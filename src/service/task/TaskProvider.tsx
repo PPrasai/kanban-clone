@@ -16,7 +16,11 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
     const getAllTasks = () => taskService.getAll();
 
     const getTasksByStatus = (status: TaskStatus) =>
-        taskService.getAll().filter((task) => task.status === status);
+        taskService
+            .getAll()
+            .filter(
+                (task) => task.status.toLowerCase() === status.toLowerCase(),
+            );
 
     const createTask = (task: Omit<Task, 'id'>) => taskService.create(task);
     const updateTask = (id: string, updates: Partial<Omit<Task, 'id'>>) =>
