@@ -9,18 +9,20 @@ interface Props {
 }
 
 const TaskColumn = ({ status, onCardClick }: Props) => {
-    const { getTasksByStatus } = useTaskStore();
-    const tasks = getTasksByStatus(status);
+    const { getTasksByStatus, updateTask } = useTaskStore();
 
     return (
         <div className="min-w-[300px] w-full max-w-sm flex flex-col gap-2">
             <Card className="shadow-md">
                 <CardHeader title={status.replace('_', ' ')} />
             </Card>
-            {tasks.map((task) => (
+            {getTasksByStatus(status).map((task) => (
                 <TaskCard
                     key={task.id}
                     task={task}
+                    onFavoriteToggle={() =>
+                        updateTask(task.id, { favorite: !task.favorite })
+                    }
                     onClick={() => onCardClick(task)}
                 />
             ))}

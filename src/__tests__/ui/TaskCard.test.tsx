@@ -17,9 +17,16 @@ describe('TaskCard', () => {
     };
 
     const mockOnClick = jest.fn();
+    const mockFavoriteClick = jest.fn();
 
     it('renders task title and description when provided', () => {
-        render(<TaskCard task={mockTask} onClick={mockOnClick} />);
+        render(
+            <TaskCard
+                task={mockTask}
+                onClick={mockOnClick}
+                onFavoriteToggle={mockFavoriteClick}
+            />,
+        );
 
         expect(screen.getByText(mockTask.title)).toBeInTheDocument();
         expect(screen.getByText(mockTask.description!)).toBeInTheDocument();
@@ -30,6 +37,7 @@ describe('TaskCard', () => {
             <TaskCard
                 task={mockTaskWithoutDescription}
                 onClick={mockOnClick}
+                onFavoriteToggle={mockFavoriteClick}
             />,
         );
 
@@ -42,7 +50,13 @@ describe('TaskCard', () => {
     });
 
     it('calls onClick handler when card is clicked', () => {
-        render(<TaskCard task={mockTask} onClick={mockOnClick} />);
+        render(
+            <TaskCard
+                task={mockTask}
+                onClick={mockOnClick}
+                onFavoriteToggle={mockFavoriteClick}
+            />,
+        );
 
         fireEvent.click(screen.getByTestId('task-card'));
         expect(mockOnClick).toHaveBeenCalledTimes(1);
@@ -50,7 +64,11 @@ describe('TaskCard', () => {
 
     it('has hover styles and cursor pointer', () => {
         const { container } = render(
-            <TaskCard task={mockTask} onClick={mockOnClick} />,
+            <TaskCard
+                task={mockTask}
+                onClick={mockOnClick}
+                onFavoriteToggle={mockFavoriteClick}
+            />,
         );
         const card = container.firstChild;
 
