@@ -4,7 +4,7 @@ import {
     InvalidTaskError,
     TaskNotFoundError,
     TaskService,
-} from '../../service/TaskService';
+} from '../../service/task/TaskService';
 
 jest.mock('../../repositoy/LocalStorageTaskRepository');
 

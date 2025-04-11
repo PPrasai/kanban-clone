@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { AbstractTaskRepository, Task, TaskStatus } from '../domain/Task';
+import { AbstractTaskRepository, Task, TaskStatus } from '../../domain/Task';
 
 export class TaskNotFoundError extends Error {
     constructor(message: string) {
