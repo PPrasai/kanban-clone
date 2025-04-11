@@ -21,7 +21,8 @@ const TaskColumn = ({
     onToggleSort,
     sortOrder,
 }: Props) => {
-    const { getTasksByStatus, updateTask, moveTask } = useTaskStore();
+    const { getTasksByStatus, updateTask, moveTask, deleteTask } =
+        useTaskStore();
 
     const tasks = getTasksByStatus(status);
 
@@ -88,6 +89,7 @@ const TaskColumn = ({
                         updateTask(task.id, { favorite: !task.favorite })
                     }
                     onClick={() => onCardClick(task)}
+                    onDelete={() => deleteTask(task.id)}
                 />
             ))}
         </div>

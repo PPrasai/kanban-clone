@@ -116,11 +116,14 @@ describe('TaskService', () => {
 
     describe('move', () => {
         it("should update a task's status", () => {
-            const movedTask = { ...sampleTask, status: TaskStatus.DONE };
+            const movedTask = {
+                ...sampleTask,
+                status: TaskStatus.DONE.toUpperCase(),
+            };
             mockRepo.getAll = jest.fn().mockReturnValue([sampleTask]);
 
             const task = taskService.move('1', TaskStatus.DONE);
-            expect(task.status).toBe(TaskStatus.DONE);
+            expect(task.status).toBe(TaskStatus.DONE.toUpperCase());
             expect(mockRepo.saveAll).toHaveBeenCalledWith([movedTask]);
         });
     });

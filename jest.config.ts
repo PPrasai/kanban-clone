@@ -9,6 +9,9 @@ const config: Config = {
     },
     setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
     testMatch: ['<rootDir>/src/__tests__/**/*.test.ts?(x)'],
+    silent: true,
+    collectCoverage: true,
+    transformIgnorePatterns: ['/node_modules/(?!react-dnd)/'],
 };
 
 export default config;
