@@ -4,10 +4,15 @@ import './index.css';
 import App from './App.tsx';
 import { TaskProvider } from './service/task/TaskProvider.tsx';
 
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <TaskProvider>
-            <App />
-        </TaskProvider>
+        <DndProvider backend={HTML5Backend}>
+            <TaskProvider>
+                <App />
+            </TaskProvider>
+        </DndProvider>
     </StrictMode>,
 );

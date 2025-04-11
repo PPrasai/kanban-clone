@@ -1,8 +1,10 @@
+import { useDrop } from 'react-dnd';
 import { Card, CardHeader, IconButton, Tooltip } from '@mui/material';
 import { ArrowUpward, ArrowDownward } from '@mui/icons-material';
 
 import { Task, TaskStatus } from '../../domain/Task';
 import { useTaskStore } from '../../service/task/TaskContext';
+import { ItemTypes } from '../../domain/Task';
 import TaskCard from './TaskCard';
 
 interface Props {
@@ -18,7 +20,7 @@ const TaskColumn = ({
     onToggleSort,
     sortOrder,
 }: Props) => {
-    const { getTasksByStatus, updateTask } = useTaskStore();
+    const { getTasksByStatus, updateTask, moveTask } = useTaskStore();
 
     const tasks = getTasksByStatus(status);
 
@@ -33,8 +35,28 @@ const TaskColumn = ({
         return sortOrder === 'asc' ? comparison : -comparison;
     });
 
+    const [{ isOver }, drop] = useDrop(
+        () => ({
+            accept: ItemTypes.TASK,
+            drop: (draggedItem: { id: string; status: TaskStatus }) => {
+                if (draggedItem.status !== status) {
+                    moveTask(draggedItem.id, status);
+                }
+            },
+            collect: (monitor) => ({
+                isOver: monitor.isOver(),
+            }),
+        }),
+        [status],
+    );
+
     return (
-        <div className="min-w-[300px] w-full max-w-sm flex flex-col gap-2">
+        <div
+            ref={drop}
+            className={`min-w-[300px] w-full max-w-sm flex flex-col gap-2 transition-colors ${
+                isOver ? 'bg-yellow-100' : ''
+            }`}
+        >
             <Card className="shadow-md">
                 <CardHeader
                     title={

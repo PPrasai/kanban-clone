@@ -20,3 +20,7 @@ export interface AbstractTaskRepository {
     updateTask(updatedTask: Task): void;
     deleteTask(taskId: string): void;
 }
+
+export const ItemTypes = {
+    TASK: 'task',
+};
