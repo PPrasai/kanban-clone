@@ -4,11 +4,11 @@ class LocalStorageTaskRepository implements AbstractTaskRepository {
     private readonly STORAGE_KEY = 'tasks';
 
     getAll(): Task[] {
+        // eslint-disable-next-line no-debugger
+        debugger;
         try {
             const data = localStorage.getItem(this.STORAGE_KEY);
-            if (!data) {
-                throw new Error('No tasks found in local storage.');
-            }
+            if (!data) return [];
             return JSON.parse(data);
         } catch (error) {
             throw new Error(

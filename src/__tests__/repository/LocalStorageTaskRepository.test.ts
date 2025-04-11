@@ -3,7 +3,6 @@ import LocalStorageTaskRepository from '../../repositoy/LocalStorageTaskReposito
 
 let store: Record<string, string> = {};
 
-// A custom localStorage mock that uses an external store variable.
 const mockLocalStorage = {
     getItem: jest.fn((key: string) => store[key] || null),
     setItem: jest.fn((key: string, value: string) => {
@@ -60,12 +59,6 @@ describe('LocalStorageTaskRepository', () => {
             localStorage.setItem('tasks', JSON.stringify([sampleTask]));
             const tasks = repo.getAll();
             expect(tasks).toEqual([sampleTask]);
-        });
-
-        it('throws when no tasks found', () => {
-            expect(() => repo.getAll()).toThrow(
-                'No tasks found in local storage.',
-            );
         });
 
         it('throws when JSON parsing fails', () => {

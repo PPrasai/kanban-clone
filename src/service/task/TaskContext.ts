@@ -16,7 +16,7 @@ export const TaskContext = createContext<TaskContextType | undefined>(
     undefined,
 );
 
-export const useTaskContext = (): TaskContextType => {
+export const useTaskStore = (): TaskContextType => {
     const context = useContext(TaskContext);
     if (!context) {
         throw new Error('useTaskContext must be used within a TaskProvider');

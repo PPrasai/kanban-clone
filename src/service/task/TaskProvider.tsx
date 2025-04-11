@@ -1,18 +1,23 @@
 import { useState, ReactNode } from 'react';
-
-import { Task, TaskStatus } from '../../domain/Task';
-import LocalStorageTaskRepository from '../../repositoy/LocalStorageTaskRepository';
 import { TaskContext } from './TaskContext';
 import { TaskService } from './TaskService';
+import LocalStorageTaskRepository from '../../repositoy/LocalStorageTaskRepository';
+import { Task, TaskStatus } from '../../domain/Task';
 
-export const TaskProvider = ({ children }: { children: ReactNode }) => {
+interface TaskProviderProps {
+    children: ReactNode;
+}
+
+export const TaskProvider = ({ children }: TaskProviderProps) => {
     const [taskService] = useState(
         () => new TaskService(new LocalStorageTaskRepository()),
     );
 
     const getAllTasks = () => taskService.getAll();
+
     const getTasksByStatus = (status: TaskStatus) =>
         taskService.getAll().filter((task) => task.status === status);
+
     const createTask = (task: Omit<Task, 'id'>) => taskService.create(task);
     const updateTask = (id: string, updates: Partial<Omit<Task, 'id'>>) =>
         taskService.update(id, updates);
