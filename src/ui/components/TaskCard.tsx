@@ -10,6 +10,7 @@ const TaskCard = ({ task, onClick }: Props) => {
     return (
         <Card
             onClick={onClick}
+            data-testid="task-card"
             className="cursor-pointer hover:shadow-lg transition-shadow"
         >
             <CardContent>
