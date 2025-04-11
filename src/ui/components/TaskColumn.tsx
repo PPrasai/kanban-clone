@@ -6,6 +6,7 @@ import { Task, TaskStatus } from '../../domain/Task';
 import { useTaskStore } from '../../service/task/TaskContext';
 import { ItemTypes } from '../../domain/Task';
 import TaskCard from './TaskCard';
+import { useRef } from 'react';
 
 interface Props {
     status: TaskStatus;
@@ -35,6 +36,8 @@ const TaskColumn = ({
         return sortOrder === 'asc' ? comparison : -comparison;
     });
 
+    const columnRef = useRef<HTMLDivElement>(null);
+
     const [{ isOver }, drop] = useDrop(
         () => ({
             accept: ItemTypes.TASK,
@@ -50,9 +53,11 @@ const TaskColumn = ({
         [status],
     );
 
+    drop(columnRef);
+
     return (
         <div
-            ref={drop}
+            ref={columnRef}
             className={`min-w-[300px] w-full max-w-sm flex flex-col gap-2 transition-colors ${
                 isOver ? 'bg-yellow-100' : ''
             }`}

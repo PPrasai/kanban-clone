@@ -92,6 +92,6 @@ export class TaskService {
     }
 
     move(id: string, status: TaskStatus): Task {
-        return this.update(id, { status });
+        return this.update(id, { status: status.toUpperCase() as TaskStatus });
     }
 }
