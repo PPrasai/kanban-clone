@@ -30,11 +30,9 @@ describe('LocalStorageTaskRepository', () => {
     };
 
     beforeEach(() => {
-        // Reset the store and mocks.
         store = {};
         jest.clearAllMocks();
 
-        // Reset the localStorage mock implementations.
         mockLocalStorage.getItem.mockImplementation(
             (key: string) => store[key] || null,
         );
@@ -50,7 +48,6 @@ describe('LocalStorageTaskRepository', () => {
             store = {};
         });
 
-        // Create a fresh repository instance for every test.
         repo = new LocalStorageTaskRepository();
     });
 
@@ -77,7 +74,6 @@ describe('LocalStorageTaskRepository', () => {
         });
 
         it('throws when localStorage.setItem fails', () => {
-            // Override setItem to simulate failure.
             localStorage.setItem = jest.fn(() => {
                 throw new Error('Quota exceeded');
             });
@@ -89,7 +85,7 @@ describe('LocalStorageTaskRepository', () => {
 
     describe('createTask', () => {
         it('adds task to existing list', () => {
-            repo.saveAll([]); // initialize storage with an empty list
+            repo.saveAll([]);
             repo.createTask(sampleTask);
             const tasks = repo.getAll();
             expect(tasks).toContainEqual(sampleTask);
