@@ -1,4 +1,4 @@
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useEffect } from 'react';
 import { TaskContext } from './TaskContext';
 import { TaskService } from './TaskService';
 import LocalStorageTaskRepository from '../../repositoy/LocalStorageTaskRepository';
@@ -13,21 +13,47 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
         () => new TaskService(new LocalStorageTaskRepository()),
     );
 
-    const getAllTasks = () => taskService.getAll();
+    const [tasks, setTasks] = useState<Task[]>([]);
+
+    useEffect(() => {
+        setTasks(taskService.getAll());
+    }, [taskService]);
+
+    const getAllTasks = () => tasks;
 
     const getTasksByStatus = (status: TaskStatus) =>
-        taskService
-            .getAll()
-            .filter(
-                (task) => task.status.toLowerCase() === status.toLowerCase(),
-            );
+        tasks.filter(
+            (task) => task.status.toLowerCase() === status.toLowerCase(),
+        );
 
-    const createTask = (task: Omit<Task, 'id'>) => taskService.create(task);
-    const updateTask = (id: string, updates: Partial<Omit<Task, 'id'>>) =>
-        taskService.update(id, updates);
-    const deleteTask = (id: string) => taskService.delete(id);
-    const moveTask = (id: string, status: TaskStatus) =>
-        taskService.move(id, status);
+    const createTask = (task: Omit<Task, 'id'>) => {
+        const newTask = taskService.create(task);
+        setTasks([...tasks, newTask]);
+        return newTask;
+    };
+
+    const updateTask = (id: string, updates: Partial<Omit<Task, 'id'>>) => {
+        const updated = taskService.update(id, updates);
+        setTasks((prev) =>
+            prev.map((task) =>
+                task.id === id ? { ...task, ...updated } : task,
+            ),
+        );
+        return updated;
+    };
+
+    const deleteTask = (id: string) => {
+        taskService.delete(id);
+        setTasks((prev) => prev.filter((task) => task.id !== id));
+    };
+
+    const moveTask = (id: string, status: TaskStatus) => {
+        const moved = taskService.move(id, status);
+        setTasks((prev) =>
+            prev.map((task) => (task.id === id ? { ...task, ...moved } : task)),
+        );
+        return moved;
+    };
 
     return (
         <TaskContext.Provider

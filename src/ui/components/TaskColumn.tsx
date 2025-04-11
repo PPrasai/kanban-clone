@@ -2,7 +2,6 @@ import { Card, CardHeader } from '@mui/material';
 import { Task, TaskStatus } from '../../domain/Task';
 import { useTaskStore } from '../../service/task/TaskContext';
 import TaskCard from './TaskCard';
-import { useEffect, useState } from 'react';
 
 interface Props {
     status: TaskStatus;
@@ -11,18 +10,8 @@ interface Props {
 
 const TaskColumn = ({ status, onCardClick }: Props) => {
     const { getTasksByStatus, updateTask } = useTaskStore();
-    const [tasks, setTasks] = useState<Task[]>(getTasksByStatus(status));
 
-    useEffect(() => {
-        setTasks(getTasksByStatus(status));
-    }, [status]);
-
-    const handleFavoriteToggle = (taskId: string) => {
-        updateTask(taskId, {
-            favorite: !tasks.find((task) => task.id === taskId)?.favorite,
-        });
-        setTasks(getTasksByStatus(status));
-    };
+    const tasks = getTasksByStatus(status); // React now re-runs this when state updates
 
     return (
         <div className="min-w-[300px] w-full max-w-sm flex flex-col gap-2">
@@ -33,7 +22,9 @@ const TaskColumn = ({ status, onCardClick }: Props) => {
                 <TaskCard
                     key={task.id}
                     task={task}
-                    onFavoriteToggle={() => handleFavoriteToggle(task.id)}
+                    onFavoriteToggle={() =>
+                        updateTask(task.id, { favorite: !task.favorite })
+                    }
                     onClick={() => onCardClick(task)}
                 />
             ))}
