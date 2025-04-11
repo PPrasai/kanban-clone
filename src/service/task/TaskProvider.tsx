@@ -1,4 +1,4 @@
-import { useState, ReactNode, useEffect } from 'react';
+import { useState, ReactNode, useEffect, useMemo } from 'react';
 import { TaskContext } from './TaskContext';
 import { TaskService } from './TaskService';
 import LocalStorageTaskRepository from '../../repositoy/LocalStorageTaskRepository';
@@ -9,8 +9,9 @@ interface TaskProviderProps {
 }
 
 export const TaskProvider = ({ children }: TaskProviderProps) => {
-    const [taskService] = useState(
+    const taskService = useMemo(
         () => new TaskService(new LocalStorageTaskRepository()),
+        [],
     );
 
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -27,6 +28,7 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
         );
 
     const createTask = (task: Omit<Task, 'id'>) => {
+        console.log('creating');
         const newTask = taskService.create(task);
         setTasks([...tasks, newTask]);
         return newTask;

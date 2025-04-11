@@ -81,17 +81,22 @@ const TaskColumn = ({
                     }
                 />
             </Card>
-            {sortedTasks.map((task) => (
-                <TaskCard
-                    key={task.id}
-                    task={task}
-                    onFavoriteToggle={() =>
-                        updateTask(task.id, { favorite: !task.favorite })
-                    }
-                    onClick={() => onCardClick(task)}
-                    onDelete={() => deleteTask(task.id)}
-                />
-            ))}
+            {sortedTasks
+                .filter(
+                    (task, index, self) =>
+                        self.findIndex((t) => t.id === task.id) === index,
+                )
+                .map((task) => (
+                    <TaskCard
+                        key={task.id}
+                        task={task}
+                        onFavoriteToggle={() =>
+                            updateTask(task.id, { favorite: !task.favorite })
+                        }
+                        onClick={() => onCardClick(task)}
+                        onDelete={() => deleteTask(task.id)}
+                    />
+                ))}
         </div>
     );
 };
