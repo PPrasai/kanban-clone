@@ -1,35 +1,27 @@
 import { useState } from 'react';
-import { Task, TaskStatus } from '../../domain/Task';
+
+import { Fab } from '@mui/material';
+import { Add } from '@mui/icons-material';
+
 import TaskColumn from './TaskColumn';
-import CreateTaskButton from './CreateTaskButton';
 import TaskFormModal from './TaskFormModal';
 
-const STATUSES: TaskStatus[] = [
-    TaskStatus.TODO,
-    TaskStatus.IN_PROGRESS,
-    TaskStatus.IN_REVIEW,
-    TaskStatus.DONE,
-];
+import { Task, TaskStatus } from '../../domain/Task';
+import { useTaskBoard } from '../hooks/useTaskBoard';
 
 const TaskBoard = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
-    const [sortOrders, setSortOrders] = useState<
-        Record<TaskStatus, 'asc' | 'desc'>
-    >({
-        [TaskStatus.TODO]: 'asc',
-        [TaskStatus.IN_PROGRESS]: 'asc',
-        [TaskStatus.IN_REVIEW]: 'asc',
-        [TaskStatus.DONE]: 'asc',
-    });
-
-    const toggleSortOrder = (status: TaskStatus) => {
-        setSortOrders((prev) => ({
-            ...prev,
-            [status]: prev[status] === 'asc' ? 'desc' : 'asc',
-        }));
-    };
+    const {
+        STATUSES,
+        sortOrders,
+        toggleSortOrder,
+        getSortedTasks,
+        updateTask,
+        moveTask,
+        deleteTask,
+    } = useTaskBoard();
 
     const handleCreateClick = () => {
         setSelectedTask(null);
@@ -48,18 +40,47 @@ const TaskBoard = () => {
                     <TaskColumn
                         key={status}
                         status={status}
+                        tasks={getSortedTasks(status)}
                         sortOrder={sortOrders[status]}
                         onToggleSort={() => toggleSortOrder(status)}
                         onCardClick={handleCardClick}
+                        onFavoriteToggle={(taskId: string) => {
+                            const task = getSortedTasks(status).find(
+                                (t) => t.id === taskId,
+                            );
+                            if (task) {
+                                updateTask(taskId, {
+                                    favorite: !task.favorite,
+                                });
+                            }
+                        }}
+                        onDelete={(taskId: string) => deleteTask(taskId)}
+                        onTaskDrop={(draggedItem: {
+                            id: string;
+                            status: TaskStatus;
+                        }) => {
+                            if (draggedItem.status !== status) {
+                                moveTask(draggedItem.id, status);
+                            }
+                        }}
                     />
                 ))}
             </div>
 
-            <CreateTaskButton onClick={handleCreateClick} />
+            <Fab
+                color="primary"
+                className="fixed bottom-6 right-6"
+                onClick={handleCreateClick}
+            >
+                <Add />
+            </Fab>
 
             <TaskFormModal
                 open={modalOpen}
-                onClose={() => setModalOpen(false)}
+                onClose={() => {
+                    setModalOpen(false);
+                    setSelectedTask(null);
+                }}
                 task={selectedTask}
             />
         </div>

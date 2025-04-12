@@ -43,6 +43,9 @@ const TaskFormModal = ({ open, onClose, task }: Props) => {
         } else {
             createTask({ title, description, status });
         }
+
+        setTitle('');
+        setDescription('');
         onClose();
     };
 

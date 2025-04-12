@@ -1,57 +1,44 @@
-import { useDrop } from 'react-dnd';
 import { Card, CardHeader, IconButton, Tooltip } from '@mui/material';
 import { ArrowUpward, ArrowDownward } from '@mui/icons-material';
 
-import { Task, TaskStatus } from '../../domain/Task';
-import { useTaskStore } from '../../service/task/TaskContext';
-import { ItemTypes } from '../../domain/Task';
 import TaskCard from './TaskCard';
+import { useDrop } from 'react-dnd';
 import { useRef } from 'react';
+import { ItemTypes, Task, TaskStatus } from '../../domain/Task';
 
 interface Props {
     status: TaskStatus;
+    tasks: Task[];
     sortOrder: 'asc' | 'desc';
     onToggleSort: () => void;
     onCardClick: (task: Task) => void;
+    onFavoriteToggle: (taskId: string) => void;
+    onDelete: (taskId: string) => void;
+    onTaskDrop: (draggedItem: { id: string; status: TaskStatus }) => void;
 }
 
 const TaskColumn = ({
     status,
-    onCardClick,
-    onToggleSort,
+    tasks,
     sortOrder,
+    onToggleSort,
+    onCardClick,
+    onFavoriteToggle,
+    onDelete,
+    onTaskDrop,
 }: Props) => {
-    const { getTasksByStatus, updateTask, moveTask, deleteTask } =
-        useTaskStore();
-
-    const tasks = getTasksByStatus(status);
-
-    const sortedTasks = [...tasks].sort((a, b) => {
-        if (a.favorite && !b.favorite) return -1;
-        if (!a.favorite && b.favorite) return 1;
-
-        const comparison = a.title.localeCompare(b.title, undefined, {
-            sensitivity: 'base',
-        });
-
-        return sortOrder === 'asc' ? comparison : -comparison;
-    });
-
     const columnRef = useRef<HTMLDivElement>(null);
 
     const [{ isOver }, drop] = useDrop(
         () => ({
             accept: ItemTypes.TASK,
-            drop: (draggedItem: { id: string; status: TaskStatus }) => {
-                if (draggedItem.status !== status) {
-                    moveTask(draggedItem.id, status);
-                }
-            },
+            drop: (draggedItem: { id: string; status: TaskStatus }) =>
+                onTaskDrop(draggedItem),
             collect: (monitor) => ({
                 isOver: monitor.isOver(),
             }),
         }),
-        [status],
+        [status, onTaskDrop],
     );
 
     drop(columnRef);
@@ -81,22 +68,15 @@ const TaskColumn = ({
                     }
                 />
             </Card>
-            {sortedTasks
-                .filter(
-                    (task, index, self) =>
-                        self.findIndex((t) => t.id === task.id) === index,
-                )
-                .map((task) => (
-                    <TaskCard
-                        key={task.id}
-                        task={task}
-                        onFavoriteToggle={() =>
-                            updateTask(task.id, { favorite: !task.favorite })
-                        }
-                        onClick={() => onCardClick(task)}
-                        onDelete={() => deleteTask(task.id)}
-                    />
-                ))}
+            {tasks.map((task) => (
+                <TaskCard
+                    key={task.id}
+                    task={task}
+                    onFavoriteToggle={() => onFavoriteToggle(task.id)}
+                    onClick={() => onCardClick(task)}
+                    onDelete={() => onDelete(task.id)}
+                />
+            ))}
         </div>
     );
 };

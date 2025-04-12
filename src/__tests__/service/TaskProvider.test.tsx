@@ -74,8 +74,8 @@ describe('TaskProvider', () => {
             createBtn.click();
         });
 
-        expect(screen.getByTestId('all-count')).toHaveTextContent('2');
-        expect(screen.getByTestId('pending-count')).toHaveTextContent('2');
+        expect(screen.getByTestId('all-count')).toHaveTextContent('1');
+        expect(screen.getByTestId('pending-count')).toHaveTextContent('1');
     });
 
     it('updates a task', () => {
@@ -96,7 +96,7 @@ describe('TaskProvider', () => {
             updateBtn.click();
         });
 
-        expect(screen.getByTestId('all-count')).toHaveTextContent('3');
+        expect(screen.getByTestId('all-count')).toHaveTextContent('2');
     });
 
     it('moves a task to a new status', () => {
@@ -117,7 +117,7 @@ describe('TaskProvider', () => {
             moveBtn.click();
         });
 
-        expect(screen.getByTestId('pending-count')).toHaveTextContent('3');
+        expect(screen.getByTestId('pending-count')).toHaveTextContent('2');
     });
 
     it('deletes a task', () => {
@@ -138,6 +138,6 @@ describe('TaskProvider', () => {
             deleteBtn.click();
         });
 
-        expect(screen.getByTestId('all-count')).toHaveTextContent('4');
+        expect(screen.getByTestId('all-count')).toHaveTextContent('3');
     });
 });

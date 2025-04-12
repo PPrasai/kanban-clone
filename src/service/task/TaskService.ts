@@ -47,8 +47,8 @@ export class TaskService {
         };
 
         const tasks = this.loadTasks();
-        tasks.push(newTask);
-        this.cache = tasks;
+        const updatedTasks = [...tasks, newTask];
+        this.cache = updatedTasks;
         this.syncTasks();
         return newTask;
     }

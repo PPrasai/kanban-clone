@@ -22,15 +22,17 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
 
     const getAllTasks = () => tasks;
 
-    const getTasksByStatus = (status: TaskStatus) =>
-        tasks.filter(
+    const getTasksByStatus = (status: TaskStatus) => {
+        const test = tasks.filter(
             (task) => task.status.toLowerCase() === status.toLowerCase(),
         );
 
+        return test;
+    };
+
     const createTask = (task: Omit<Task, 'id'>) => {
-        console.log('creating');
         const newTask = taskService.create(task);
-        setTasks([...tasks, newTask]);
+        setTasks(taskService.getAll());
         return newTask;
     };
 
