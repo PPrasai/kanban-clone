@@ -10,8 +10,9 @@ const config: Config = {
     setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
     testMatch: ['<rootDir>/src/__tests__/**/*.test.ts?(x)'],
     silent: true,
-    collectCoverage: true,
-    transformIgnorePatterns: ['/node_modules/(?!react-dnd)/'],
+    transformIgnorePatterns: [
+        'node_modules/(?!(react-dnd|dnd-core|@react-dnd|react-dnd-html5-backend)/)',
+    ],
 };
 
 export default config;

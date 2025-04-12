@@ -1,10 +1,8 @@
 import { Card, CardHeader, IconButton, Tooltip } from '@mui/material';
 import { ArrowUpward, ArrowDownward } from '@mui/icons-material';
-
 import TaskCard from './TaskCard';
-import { useDrop } from 'react-dnd';
-import { useRef } from 'react';
-import { ItemTypes, Task, TaskStatus } from '../../domain/Task';
+import { useDroppable } from '@dnd-kit/core';
+import { Task, TaskStatus } from '../../domain/Task';
 
 interface Props {
     status: TaskStatus;
@@ -14,7 +12,6 @@ interface Props {
     onCardClick: (task: Task) => void;
     onFavoriteToggle: (taskId: string) => void;
     onDelete: (taskId: string) => void;
-    onTaskDrop: (draggedItem: { id: string; status: TaskStatus }) => void;
 }
 
 const TaskColumn = ({
@@ -25,27 +22,14 @@ const TaskColumn = ({
     onCardClick,
     onFavoriteToggle,
     onDelete,
-    onTaskDrop,
 }: Props) => {
-    const columnRef = useRef<HTMLDivElement>(null);
-
-    const [{ isOver }, drop] = useDrop(
-        () => ({
-            accept: ItemTypes.TASK,
-            drop: (draggedItem: { id: string; status: TaskStatus }) =>
-                onTaskDrop(draggedItem),
-            collect: (monitor) => ({
-                isOver: monitor.isOver(),
-            }),
-        }),
-        [status, onTaskDrop],
-    );
-
-    drop(columnRef);
+    const { setNodeRef, isOver } = useDroppable({
+        id: status,
+    });
 
     return (
         <div
-            ref={columnRef}
+            ref={setNodeRef}
             className={`min-w-[300px] w-full max-w-sm flex flex-col gap-2 transition-colors ${
                 isOver ? 'bg-yellow-100' : ''
             }`}
@@ -56,7 +40,11 @@ const TaskColumn = ({
                         <div className="flex items-center justify-between">
                             <span>{status.replace('_', ' ')}</span>
                             <Tooltip title="Toggle sort order">
-                                <IconButton size="small" onClick={onToggleSort}>
+                                <IconButton
+                                    data-testid="sort-button"
+                                    size="small"
+                                    onClick={onToggleSort}
+                                >
                                     {sortOrder === 'asc' ? (
                                         <ArrowUpward fontSize="small" />
                                     ) : (

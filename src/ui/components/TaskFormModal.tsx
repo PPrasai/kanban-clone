@@ -69,6 +69,7 @@ const TaskFormModal = ({ open, onClose, task }: Props) => {
                     fullWidth
                 />
                 <TextField
+                    data-testid="task-status-select"
                     label="Status"
                     value={status}
                     onChange={(e) => setStatus(e.target.value as TaskStatus)}

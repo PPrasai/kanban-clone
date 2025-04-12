@@ -1,6 +1,4 @@
-import { useRef } from 'react';
-import { useDrag } from 'react-dnd';
-
+import { useDraggable } from '@dnd-kit/core';
 import {
     Card,
     CardContent,
@@ -8,36 +6,56 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { Favorite, FavoriteBorder, Delete } from '@mui/icons-material';
-
-import { ItemTypes, Task } from '../../domain/Task';
+import {
+    Favorite,
+    FavoriteBorder,
+    Delete,
+    DragIndicator,
+} from '@mui/icons-material';
+import { Task } from '../../domain/Task';
 
 interface Props {
     task: Task;
     onClick: () => void;
-    onFavoriteToggle: (taskId: string) => void;
-    onDelete: (taskId: string) => void;
+    onFavoriteToggle: () => void;
+    onDelete: () => void;
 }
 
 const TaskCard = ({ task, onFavoriteToggle, onClick, onDelete }: Props) => {
-    const cardRef = useRef<HTMLDivElement>(null);
+    const { attributes, listeners, setNodeRef, transform, isDragging } =
+        useDraggable({
+            id: task.id,
+            data: { status: task.status },
+        });
 
-    const [, drag] = useDrag(() => ({
-        type: ItemTypes.TASK,
-        item: { id: task.id, status: task.status },
-    }));
-
-    drag(cardRef);
+    const style = {
+        transform: transform
+            ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+            : undefined,
+        opacity: isDragging ? 0.5 : 1,
+    };
 
     return (
-        <div ref={cardRef} onClick={onClick} className="cursor-grab">
+        <div ref={setNodeRef} style={style}>
             <Card
-                onClick={onClick}
                 data-testid="task-card"
                 className="cursor-pointer hover:shadow-lg transition-shadow"
             >
-                <CardContent className="flex justify-between">
-                    <div>
+                <CardContent className="flex justify-between items-center">
+                    <div
+                        {...listeners}
+                        {...attributes}
+                        className="drag-handle mr-2"
+                        style={{
+                            cursor: 'grab',
+                            display: 'flex',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <DragIndicator fontSize="small" />
+                    </div>
+
+                    <div onClick={onClick} className="flex flex-1 flex-col">
                         <Typography variant="h6">{task.title}</Typography>
                         {task.description && (
                             <Typography variant="body2" color="text.secondary">
@@ -45,6 +63,7 @@ const TaskCard = ({ task, onFavoriteToggle, onClick, onDelete }: Props) => {
                             </Typography>
                         )}
                     </div>
+
                     <div className="flex items-center space-x-1">
                         <Tooltip
                             title={
@@ -56,7 +75,7 @@ const TaskCard = ({ task, onFavoriteToggle, onClick, onDelete }: Props) => {
                             <IconButton
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    onFavoriteToggle(task.id);
+                                    onFavoriteToggle();
                                 }}
                                 color={task.favorite ? 'error' : 'default'}
                             >
@@ -71,7 +90,7 @@ const TaskCard = ({ task, onFavoriteToggle, onClick, onDelete }: Props) => {
                             <IconButton
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    onDelete(task.id);
+                                    onDelete();
                                 }}
                                 color="default"
                             >
