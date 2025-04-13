@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useTaskStore } from '../../service/task/TaskContext';
+import { useTaskStore } from '../../../service/task/TaskContext';
 
 test('throws error when outside provider', () => {
     expect(() => renderHook(() => useTaskStore())).toThrow(
