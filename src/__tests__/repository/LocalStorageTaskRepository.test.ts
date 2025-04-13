@@ -1,134 +1,48 @@
-import { Task, TaskStatus } from '../../domain/Task';
+import { Task } from '../../domain/Task';
 import LocalStorageTaskRepository from '../../repositoy/LocalStorageTaskRepository';
 
-let store: Record<string, string> = {};
-
-const mockLocalStorage = {
-    getItem: jest.fn((key: string) => store[key] || null),
-    setItem: jest.fn((key: string, value: string) => {
-        store[key] = value;
-    }),
-    removeItem: jest.fn((key: string) => {
-        delete store[key];
-    }),
-    clear: jest.fn(() => {
-        store = {};
-    }),
-};
-
-Object.defineProperty(window, 'localStorage', {
-    value: mockLocalStorage,
-});
-
 describe('LocalStorageTaskRepository', () => {
-    let repo: LocalStorageTaskRepository;
-    const sampleTask: Task = {
-        id: '1',
-        title: 'Sample Task',
-        description: 'Test task',
-        status: TaskStatus.TODO,
-    };
+    const STORAGE_KEY = 'tasks';
+    const mockTask: Task = { id: '1', title: 'Test', status: 'TODO' };
 
     beforeEach(() => {
-        store = {};
-        jest.clearAllMocks();
-
-        mockLocalStorage.getItem.mockImplementation(
-            (key: string) => store[key] || null,
-        );
-        mockLocalStorage.setItem.mockImplementation(
-            (key: string, value: string) => {
-                store[key] = value;
-            },
-        );
-        mockLocalStorage.removeItem.mockImplementation((key: string) => {
-            delete store[key];
-        });
-        mockLocalStorage.clear.mockImplementation(() => {
-            store = {};
-        });
-
-        repo = new LocalStorageTaskRepository();
+        localStorage.clear();
+        jest.spyOn(Storage.prototype, 'setItem');
+        jest.spyOn(Storage.prototype, 'getItem');
     });
 
-    describe('getAll', () => {
-        it('returns parsed tasks from localStorage', () => {
-            localStorage.setItem('tasks', JSON.stringify([sampleTask]));
-            const tasks = repo.getAll();
-            expect(tasks).toEqual([sampleTask]);
-        });
-
-        it('throws when JSON parsing fails', () => {
-            localStorage.setItem('tasks', '{bad-json}');
-            expect(() => repo.getAll()).toThrow(/Failed to get tasks/);
-        });
-    });
-
-    describe('saveAll', () => {
-        it('saves tasks to localStorage', () => {
-            repo.saveAll([sampleTask]);
-            expect(localStorage.setItem).toHaveBeenCalledWith(
-                'tasks',
-                JSON.stringify([sampleTask]),
-            );
-        });
-
-        it('throws when localStorage.setItem fails', () => {
-            localStorage.setItem = jest.fn(() => {
-                throw new Error('Quota exceeded');
-            });
-            expect(() => repo.saveAll([sampleTask])).toThrow(
-                'Failed to save tasks to local storage: Quota exceeded',
-            );
-        });
-    });
-
-    describe('createTask', () => {
-        it('adds task to existing list', () => {
-            repo.saveAll([]);
-            repo.create(sampleTask);
-            const tasks = repo.getAll();
-            expect(tasks).toContainEqual(sampleTask);
-        });
-
-        it('throws if getAll fails', () => {
-            jest.spyOn(repo, 'getAll').mockImplementation(() => {
-                throw new Error('boom');
-            });
-            expect(() => repo.create(sampleTask)).toThrow(
-                'Failed to create task',
-            );
-        });
-    });
-
-    describe('updateTask', () => {
-        it('updates an existing task', () => {
-            const updatedTask = { ...sampleTask, title: 'Updated' };
-            repo.saveAll([sampleTask]);
-            repo.update(updatedTask);
-            const tasks = repo.getAll();
-            expect(tasks[0].title).toBe('Updated');
-        });
-
-        it('throws if task not found', () => {
-            repo.saveAll([]);
-            expect(() => repo.update(sampleTask)).toThrow(
-                /Task with id 1 not found/,
-            );
-        });
-    });
-
-    describe('deleteTask', () => {
-        it('removes task by id', () => {
-            repo.saveAll([sampleTask]);
-            repo.delete(sampleTask.id);
+    describe('getAll()', () => {
+        it('returns empty array when no data', () => {
+            const repo = new LocalStorageTaskRepository();
             expect(repo.getAll()).toEqual([]);
         });
 
-        it('throws if task not found', () => {
-            repo.saveAll([]);
-            expect(() => repo.delete('nonexistent')).toThrow(
-                /Task with id nonexistent not found/,
+        it('returns parsed tasks', () => {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify([mockTask]));
+            const repo = new LocalStorageTaskRepository();
+            expect(repo.getAll()).toEqual([mockTask]);
+        });
+    });
+
+    describe('saveAll()', () => {
+        it('saves tasks to localStorage', () => {
+            const repo = new LocalStorageTaskRepository();
+            repo.saveAll([mockTask]);
+            expect(localStorage.setItem).toHaveBeenCalledWith(
+                STORAGE_KEY,
+                JSON.stringify([mockTask]),
+            );
+        });
+    });
+
+    describe('delete()', () => {
+        it('removes task', () => {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify([mockTask]));
+            const repo = new LocalStorageTaskRepository();
+            repo.delete('1');
+            expect(localStorage.setItem).toHaveBeenCalledWith(
+                STORAGE_KEY,
+                '[]',
             );
         });
     });

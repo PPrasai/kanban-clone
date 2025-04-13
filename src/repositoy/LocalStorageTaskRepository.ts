@@ -33,8 +33,7 @@ class LocalStorageTaskRepository implements AbstractRepository<Task> {
     create(task: Task): void {
         try {
             const tasks = this.getAll();
-            tasks.push(task);
-            this.saveAll(tasks);
+            this.saveAll([...tasks, task]);
         } catch (error) {
             throw new Error(
                 `Failed to create task: ${(error as Error).message}`,
