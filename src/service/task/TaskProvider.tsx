@@ -2,7 +2,7 @@ import { useState, ReactNode, useEffect, useMemo } from 'react';
 import { TaskContext } from './TaskContext';
 import { TaskService } from './TaskService';
 import LocalStorageTaskRepository from '../../repositoy/LocalStorageTaskRepository';
-import { Task, TaskStatus } from '../../domain/Task';
+import { Task } from '../../domain/Task';
 
 interface TaskProviderProps {
     children: ReactNode;
@@ -22,7 +22,7 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
 
     const getAllTasks = () => tasks;
 
-    const getTasksByStatus = (status: TaskStatus) => {
+    const getTasksByStatus = (status: string) => {
         const test = tasks.filter(
             (task) => task.status.toLowerCase() === status.toLowerCase(),
         );
@@ -51,7 +51,7 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
         setTasks((prev) => prev.filter((task) => task.id !== id));
     };
 
-    const moveTask = (id: string, status: TaskStatus) => {
+    const moveTask = (id: string, status: string) => {
         const moved = taskService.move(id, status);
         setTasks((prev) =>
             prev.map((task) => (task.id === id ? { ...task, ...moved } : task)),

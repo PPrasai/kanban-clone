@@ -86,7 +86,7 @@ describe('LocalStorageTaskRepository', () => {
     describe('createTask', () => {
         it('adds task to existing list', () => {
             repo.saveAll([]);
-            repo.createTask(sampleTask);
+            repo.create(sampleTask);
             const tasks = repo.getAll();
             expect(tasks).toContainEqual(sampleTask);
         });
@@ -95,7 +95,7 @@ describe('LocalStorageTaskRepository', () => {
             jest.spyOn(repo, 'getAll').mockImplementation(() => {
                 throw new Error('boom');
             });
-            expect(() => repo.createTask(sampleTask)).toThrow(
+            expect(() => repo.create(sampleTask)).toThrow(
                 'Failed to create task',
             );
         });
@@ -105,14 +105,14 @@ describe('LocalStorageTaskRepository', () => {
         it('updates an existing task', () => {
             const updatedTask = { ...sampleTask, title: 'Updated' };
             repo.saveAll([sampleTask]);
-            repo.updateTask(updatedTask);
+            repo.update(updatedTask);
             const tasks = repo.getAll();
             expect(tasks[0].title).toBe('Updated');
         });
 
         it('throws if task not found', () => {
             repo.saveAll([]);
-            expect(() => repo.updateTask(sampleTask)).toThrow(
+            expect(() => repo.update(sampleTask)).toThrow(
                 /Task with id 1 not found/,
             );
         });
@@ -121,13 +121,13 @@ describe('LocalStorageTaskRepository', () => {
     describe('deleteTask', () => {
         it('removes task by id', () => {
             repo.saveAll([sampleTask]);
-            repo.deleteTask(sampleTask.id);
+            repo.delete(sampleTask.id);
             expect(repo.getAll()).toEqual([]);
         });
 
         it('throws if task not found', () => {
             repo.saveAll([]);
-            expect(() => repo.deleteTask('nonexistent')).toThrow(
+            expect(() => repo.delete('nonexistent')).toThrow(
                 /Task with id nonexistent not found/,
             );
         });

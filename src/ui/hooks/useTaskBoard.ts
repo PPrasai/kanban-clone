@@ -1,51 +1,37 @@
 import { useState } from 'react';
-import { Task, TaskStatus } from '../../domain/Task';
+import { Task } from '../../domain/Task';
 import { useTaskStore } from '../../service/task/TaskContext';
-
-export const STATUSES: TaskStatus[] = [
-    TaskStatus.TODO,
-    TaskStatus.IN_PROGRESS,
-    TaskStatus.IN_REVIEW,
-    TaskStatus.DONE,
-];
 
 export const useTaskBoard = () => {
     const { getTasksByStatus, updateTask, moveTask, deleteTask } =
         useTaskStore();
 
     const [sortOrders, setSortOrders] = useState<
-        Record<TaskStatus, 'asc' | 'desc'>
-    >({
-        [TaskStatus.TODO]: 'asc',
-        [TaskStatus.IN_PROGRESS]: 'asc',
-        [TaskStatus.IN_REVIEW]: 'asc',
-        [TaskStatus.DONE]: 'asc',
-    });
+        Record<string, 'asc' | 'desc'>
+    >({});
 
-    const toggleSortOrder = (status: TaskStatus) => {
+    const toggleSortOrder = (columnId: string) => {
         setSortOrders((prev) => ({
             ...prev,
-            [status]: prev[status] === 'asc' ? 'desc' : 'asc',
+            [columnId]: prev[columnId] === 'asc' ? 'desc' : 'asc',
         }));
     };
 
-    const getSortedTasks = (status: TaskStatus): Task[] => {
-        const tasks = getTasksByStatus(status);
-
-        return tasks.sort((a, b) => {
+    const getSortedTasks = (columnId: string): Task[] => {
+        const tasks = getTasksByStatus(columnId);
+        const sorted = [...tasks].sort((a, b) => {
             if (a.favorite && !b.favorite) return -1;
             if (!a.favorite && b.favorite) return 1;
-
             const comparison = a.title.localeCompare(b.title, undefined, {
                 sensitivity: 'base',
             });
-
-            return sortOrders[status] === 'asc' ? comparison : -comparison;
+            const order = sortOrders[columnId] || 'asc';
+            return order === 'asc' ? comparison : -comparison;
         });
+        return sorted;
     };
 
     return {
-        STATUSES,
         sortOrders,
         toggleSortOrder,
         getSortedTasks,

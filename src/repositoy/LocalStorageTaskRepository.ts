@@ -1,6 +1,7 @@
-import { AbstractTaskRepository, Task } from '../domain/Task';
+import { AbstractRepository } from '../domain/Infrastructure';
+import { Task } from '../domain/Task';
 
-class LocalStorageTaskRepository implements AbstractTaskRepository {
+class LocalStorageTaskRepository implements AbstractRepository<Task> {
     private readonly STORAGE_KEY = 'tasks';
 
     getAll(): Task[] {
@@ -29,7 +30,7 @@ class LocalStorageTaskRepository implements AbstractTaskRepository {
         }
     }
 
-    createTask(task: Task): void {
+    create(task: Task): void {
         try {
             const tasks = this.getAll();
             tasks.push(task);
@@ -41,7 +42,7 @@ class LocalStorageTaskRepository implements AbstractTaskRepository {
         }
     }
 
-    updateTask(updatedTask: Task): void {
+    update(updatedTask: Task): void {
         try {
             const tasks = this.getAll();
             const taskIndex = tasks.findIndex(
@@ -59,7 +60,7 @@ class LocalStorageTaskRepository implements AbstractTaskRepository {
         }
     }
 
-    deleteTask(taskId: string): void {
+    delete(taskId: string): void {
         try {
             const tasks = this.getAll();
             const updatedTasks = tasks.filter((task) => task.id !== taskId);

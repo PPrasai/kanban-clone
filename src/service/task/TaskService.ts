@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import { AbstractTaskRepository, Task, TaskStatus } from '../../domain/Task';
+import { Task } from '../../domain/Task';
+import { AbstractRepository } from '../../domain/Infrastructure';
 
 export class TaskNotFoundError extends Error {
     constructor(message: string) {
@@ -18,7 +19,7 @@ export class InvalidTaskError extends Error {
 export class TaskService {
     private cache: Task[] | null = null;
 
-    constructor(private repo: AbstractTaskRepository) {}
+    constructor(private repo: AbstractRepository<Task>) {}
 
     private loadTasks(): Task[] {
         if (!this.cache) {
@@ -91,7 +92,7 @@ export class TaskService {
         this.syncTasks();
     }
 
-    move(id: string, status: TaskStatus): Task {
-        return this.update(id, { status: status.toUpperCase() as TaskStatus });
+    move(id: string, status: string): Task {
+        return this.update(id, { status: status.toUpperCase() });
     }
 }

@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import { DndContext, DragEndEvent } from '@dnd-kit/core';
-import TaskColumn from './TaskColumn';
-import TaskFormModal from './TaskFormModal';
-import { Task, TaskStatus } from '../../domain/Task';
-import { useTaskBoard } from '../hooks/useTaskBoard';
+
 import { Fab } from '@mui/material';
 import { Add } from '@mui/icons-material';
+
+import TaskColumn from './TaskColumn';
+import TaskFormModal from './TaskFormModal';
+
+import { Task } from '../../domain/Task';
+import { useTaskBoard } from '../hooks/useTaskBoard';
+import { useColumnStore } from '../../service/column/ColumnContext';
 
 const TaskBoard = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-
     const {
-        STATUSES,
         sortOrders,
         toggleSortOrder,
         getSortedTasks,
@@ -20,6 +22,21 @@ const TaskBoard = () => {
         moveTask,
         deleteTask,
     } = useTaskBoard();
+
+    const { columns, createColumn, deleteColumn } = useColumnStore();
+
+    const handleAddColumn = () => {
+        const name = prompt('Enter new column title');
+        if (!name?.trim()) return;
+        createColumn({ title: name.trim() });
+    };
+
+    const handleDeleteColumn = (columnId: string) => {
+        if (!confirm('Delete this column and all its tasks?')) return;
+        deleteColumn(columnId);
+        const tasksToDelete = getSortedTasks(columnId);
+        tasksToDelete.forEach((task) => deleteTask(task.id));
+    };
 
     const handleCreateClick = () => {
         setSelectedTask(null);
@@ -33,30 +50,28 @@ const TaskBoard = () => {
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
-        if (
-            over &&
-            active.data.current?.status &&
-            over.id &&
-            over.id !== active.data.current.status
-        ) {
-            moveTask(active.id as string, over.id as TaskStatus);
+        if (over && active.data.current?.status !== over.id) {
+            moveTask(active.id as string, over.id as string);
         }
     };
 
     return (
         <DndContext onDragEnd={handleDragEnd}>
             <div className="flex flex-col h-screen p-2 relative bg-gray-50">
-                <div className="flex gap-4 grow overflow-x-auto">
-                    {STATUSES.map((status) => (
+                <div
+                    className="flex gap-4 grow overflow-x-auto"
+                    style={{ overflowY: 'auto' }}
+                >
+                    {columns.map((column) => (
                         <TaskColumn
-                            key={status}
-                            status={status}
-                            tasks={getSortedTasks(status)}
-                            sortOrder={sortOrders[status]}
-                            onToggleSort={() => toggleSortOrder(status)}
+                            key={column.id}
+                            column={column}
+                            tasks={getSortedTasks(column.id)}
+                            sortOrder={sortOrders[column.id] || 'asc'}
+                            onToggleSort={() => toggleSortOrder(column.id)}
                             onCardClick={handleCardClick}
                             onFavoriteToggle={(taskId: string) => {
-                                const task = getSortedTasks(status).find(
+                                const task = getSortedTasks(column.id).find(
                                     (t) => t.id === taskId,
                                 );
                                 if (task) {
@@ -66,19 +81,34 @@ const TaskBoard = () => {
                                 }
                             }}
                             onDelete={(taskId: string) => deleteTask(taskId)}
+                            onDeleteColumn={handleDeleteColumn}
                         />
                     ))}
                 </div>
 
-                <Fab
-                    data-testid="add-task-button"
-                    color="primary"
-                    className="fixed bottom-6 right-6"
-                    onClick={handleCreateClick}
-                >
-                    <Add />
-                </Fab>
+                <div className="flex justify-between items-center p-4 bg-white shadow-md">
+                    <Fab
+                        data-testid="add-task-button"
+                        variant="extended"
+                        color="primary"
+                        className="flex gap-2 fixed bottom-6 right-6"
+                        onClick={handleCreateClick}
+                    >
+                        <Add /> Task
+                    </Fab>
 
+                    <Fab
+                        data-testid="add-column-button"
+                        variant="extended"
+                        color="secondary"
+                        className="flex gap-2 fixed bottom-6 left-6"
+                        onClick={handleAddColumn}
+                    >
+                        <>
+                            <Add /> Column
+                        </>
+                    </Fab>
+                </div>
                 <TaskFormModal
                     open={modalOpen}
                     onClose={() => setModalOpen(false)}

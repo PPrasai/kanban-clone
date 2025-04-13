@@ -8,8 +8,9 @@ import {
     Button,
     MenuItem,
 } from '@mui/material';
-import { Task, TaskStatus } from '../../domain/Task';
+import { Task } from '../../domain/Task';
 import { useTaskStore } from '../../service/task/TaskContext';
+import { useColumnStore } from '../../service/column/ColumnContext';
 
 interface Props {
     open: boolean;
@@ -20,10 +21,11 @@ interface Props {
 const TaskFormModal = ({ open, onClose, task }: Props) => {
     const isEditMode = Boolean(task);
     const { createTask, updateTask } = useTaskStore();
+    const { columns } = useColumnStore();
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [status, setStatus] = useState<TaskStatus>(TaskStatus.TODO);
+    const [status, setStatus] = useState<string>('');
 
     useEffect(() => {
         if (task) {
@@ -33,9 +35,9 @@ const TaskFormModal = ({ open, onClose, task }: Props) => {
         } else {
             setTitle('');
             setDescription('');
-            setStatus(TaskStatus.TODO);
+            setStatus(columns[0]?.id || '');
         }
-    }, [task]);
+    }, [task, columns]);
 
     const handleSubmit = () => {
         if (isEditMode) {
@@ -72,15 +74,19 @@ const TaskFormModal = ({ open, onClose, task }: Props) => {
                     data-testid="task-status-select"
                     label="Status"
                     value={status}
-                    onChange={(e) => setStatus(e.target.value as TaskStatus)}
+                    onChange={(e) => setStatus(e.target.value)}
                     select
                     fullWidth
                 >
-                    {['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE'].map((s) => (
-                        <MenuItem key={s} value={s}>
-                            {s.replace('_', ' ')}
-                        </MenuItem>
-                    ))}
+                    {columns.length > 0 ? (
+                        columns.map((col) => (
+                            <MenuItem key={col.id} value={col.id}>
+                                {col.title}
+                            </MenuItem>
+                        ))
+                    ) : (
+                        <MenuItem value="">No columns available</MenuItem>
+                    )}
                 </TextField>
             </DialogContent>
             <DialogActions>
