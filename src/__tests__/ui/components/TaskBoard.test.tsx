@@ -91,4 +91,34 @@ describe('TaskBoard', () => {
         await userEvent.click(deleteButtons[0]);
         expect(mockDeleteColumn).toHaveBeenCalledWith('1');
     });
+
+    it('doesnt delete column when user cancels confirmation', async () => {
+        window.confirm = jest.fn().mockReturnValue(false);
+        const mockDeleteColumn = jest.fn();
+
+        mockUseColumnStore.mockReturnValueOnce({
+            ...mockUseColumnStore(),
+            deleteColumn: mockDeleteColumn,
+        });
+
+        render(<TaskBoard />);
+        await userEvent.click(
+            screen.getAllByRole('button', { name: /delete column/i })[0],
+        );
+        expect(mockDeleteColumn).not.toHaveBeenCalled();
+    });
+
+    it('handles empty column name input', async () => {
+        window.prompt = jest.fn().mockReturnValue('   ');
+        const mockCreateColumn = jest.fn();
+
+        mockUseColumnStore.mockReturnValueOnce({
+            ...mockUseColumnStore(),
+            createColumn: mockCreateColumn,
+        });
+
+        render(<TaskBoard />);
+        await userEvent.click(screen.getByTestId('add-column-button'));
+        expect(mockCreateColumn).not.toHaveBeenCalled();
+    });
 });

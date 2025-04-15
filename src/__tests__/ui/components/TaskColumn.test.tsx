@@ -72,4 +72,20 @@ describe('TaskColumn', () => {
         );
         expect(mockDeleteColumn).toHaveBeenCalledWith('1');
     });
+
+    it('handles empty task list well', () => {
+        render(
+            <TaskColumn
+                column={mockColumn}
+                tasks={[]}
+                sortOrder="asc"
+                onToggleSort={jest.fn()}
+                onCardClick={jest.fn()}
+                onFavoriteToggle={jest.fn()}
+                onDelete={jest.fn()}
+            />,
+        );
+
+        expect(screen.queryByTestId('task-card')).toBeNull();
+    });
 });
