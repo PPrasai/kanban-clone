@@ -18,6 +18,7 @@ const TaskBoard = () => {
         sortOrders,
         toggleSortOrder,
         getSortedTasks,
+        createTask,
         updateTask,
         moveTask,
         deleteTask,
@@ -113,6 +114,9 @@ const TaskBoard = () => {
                     open={modalOpen}
                     onClose={() => setModalOpen(false)}
                     task={selectedTask}
+                    createTask={createTask}
+                    updateTask={updateTask}
+                    columns={columns}
                 />
             </div>
         </DndContext>

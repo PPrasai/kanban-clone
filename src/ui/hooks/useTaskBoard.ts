@@ -3,7 +3,7 @@ import { Task } from '../../domain/Task';
 import { useTaskStore } from '../../service/task/TaskContext';
 
 export const useTaskBoard = () => {
-    const { getTasksByStatus, updateTask, moveTask, deleteTask } =
+    const { getTasksByStatus, updateTask, moveTask, deleteTask, createTask } =
         useTaskStore();
 
     const [sortOrders, setSortOrders] = useState<
@@ -35,6 +35,7 @@ export const useTaskBoard = () => {
         sortOrders,
         toggleSortOrder,
         getSortedTasks,
+        createTask,
         updateTask,
         moveTask,
         deleteTask,

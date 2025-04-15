@@ -9,28 +9,41 @@ import {
     MenuItem,
 } from '@mui/material';
 import { Task } from '../../domain/Task';
-import { useTaskStore } from '../../service/task/TaskContext';
-import { useColumnStore } from '../../service/column/ColumnContext';
 
 interface Props {
     open: boolean;
     onClose: () => void;
     task: Task | null;
+    createTask: (data: Omit<Task, 'id' | 'favorite'>) => void;
+    updateTask: (id: string, data: Omit<Task, 'id' | 'favorite'>) => void;
+    columns: { id: string; title: string }[];
 }
 
-const TaskFormModal = ({ open, onClose, task }: Props) => {
+export default function TaskFormModal({
+    open,
+    onClose,
+    task,
+    createTask,
+    updateTask,
+    columns,
+}: Props) {
     const isEditMode = Boolean(task);
-    const { createTask, updateTask } = useTaskStore();
-    const { columns } = useColumnStore();
-
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [status, setStatus] = useState<string>('');
+    const [status, setStatus] = useState('');
+
+    const isSubmitDisabled =
+        !title.trim() ||
+        !status ||
+        (isEditMode &&
+            title === task?.title &&
+            description === (task?.description || '') &&
+            status === task?.status);
 
     useEffect(() => {
         if (task) {
             setTitle(task.title);
-            setDescription(task.description || '');
+            setDescription(task.description ?? '');
             setStatus(task.status);
         } else {
             setTitle('');
@@ -40,12 +53,9 @@ const TaskFormModal = ({ open, onClose, task }: Props) => {
     }, [task, columns]);
 
     const handleSubmit = () => {
-        if (isEditMode) {
-            updateTask(task!.id, { title, description, status });
-        } else {
-            createTask({ title, description, status });
-        }
-
+        const payload = { title, description, status };
+        if (isEditMode) updateTask(task!.id, payload);
+        else createTask(payload);
         setTitle('');
         setDescription('');
         onClose();
@@ -54,49 +64,49 @@ const TaskFormModal = ({ open, onClose, task }: Props) => {
     return (
         <Dialog open={open} onClose={onClose} fullWidth>
             <DialogTitle>{isEditMode ? 'Edit Task' : 'New Task'}</DialogTitle>
-            <DialogContent className="flex flex-col gap-4 pt-4">
+            <DialogContent>
                 <TextField
                     label="Title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    required
                     fullWidth
+                    margin="normal"
                 />
                 <TextField
                     label="Description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    multiline
-                    rows={4}
                     fullWidth
+                    multiline
+                    rows={3}
+                    margin="normal"
                 />
                 <TextField
-                    data-testid="task-status-select"
                     label="Status"
+                    select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    select
                     fullWidth
+                    data-testid="task-status-select"
+                    margin="normal"
                 >
-                    {columns.length > 0 ? (
-                        columns.map((col) => (
-                            <MenuItem key={col.id} value={col.id}>
-                                {col.title}
-                            </MenuItem>
-                        ))
-                    ) : (
-                        <MenuItem value="">No columns available</MenuItem>
-                    )}
+                    {columns.map((col) => (
+                        <MenuItem key={col.id} value={col.id}>
+                            {col.title}
+                        </MenuItem>
+                    ))}
                 </TextField>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
-                <Button onClick={handleSubmit} variant="contained">
+                <Button
+                    onClick={handleSubmit}
+                    variant="contained"
+                    disabled={isSubmitDisabled}
+                >
                     {isEditMode ? 'Save' : 'Create'}
                 </Button>
             </DialogActions>
         </Dialog>
     );
-};
-
-export default TaskFormModal;
+}
