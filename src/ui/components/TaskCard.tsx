@@ -43,6 +43,7 @@ const TaskCard = ({ task, onFavoriteToggle, onClick, onDelete }: Props) => {
             >
                 <CardContent className="flex justify-between items-center">
                     <div
+                        data-testid="drag-handle"
                         {...listeners}
                         {...attributes}
                         className="drag-handle mr-2"
